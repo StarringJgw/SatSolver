@@ -7,6 +7,7 @@
 #include "iostream"
 #include "myVector.h"
 #include "myList.h"
+#include "cmath"
 
 typedef myList<myList<int >> Formula;
 typedef myList<int> Clause;
@@ -91,6 +92,20 @@ int ShowVector(myVector<T> target) {
     }
     fflush(stdout);
     return 1;
+}
+
+void SortSolution(Solution &solution) {
+    for (int flag = 1; flag != 0;) {
+        flag = 0;
+        for (int i = 0; i < solution.Size() - 1; i++) {
+            if (abs(solution[i]) > abs(solution[i + 1])) {
+                solution[i] = solution[i + 1] + solution[i];
+                solution[i + 1] = solution[i] - solution[i + 1];
+                solution[i] = solution[i] - solution[i + 1];
+                flag = 1;
+            }
+        }
+    }
 }
 
 #endif //TESTC_DPLL_H

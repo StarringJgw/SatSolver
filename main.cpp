@@ -8,6 +8,7 @@
 #include "Dpll.h"
 #include "chrono"
 #include "CnfParser.h"
+#include "regex"
 //#include "algorithm"
 using namespace std;
 
@@ -95,7 +96,11 @@ int main(void) {
 
 
 //    Show(formula);
-    auto f1 = readCNF("../set/base_test.cnf");
+    string localFileName;
+    localFileName = "base_test.cnf";
+    regex pattern(".cnf");
+    string localFileNameSelected = regex_replace(localFileName, pattern, "");
+    auto f1 = readCNF("../set/" + localFileName);
 //    Show(f1);
     try {
 //        Show(testF);
@@ -105,7 +110,9 @@ int main(void) {
         auto t2 = chrono::steady_clock::now();
         chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double >>(t2 - t1);
         cout << x << endl << "Time(s): " << time_span.count() << "" << endl;
-        ShowVector(solution);
+//        ShowVector(solution);
+        SortSolution(solution);
+        outputSolution(solution, "../set/" + localFileNameSelected + ".res");
     }
     catch (int status) {
         cout << status << "\tNo Solution" << endl;

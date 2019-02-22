@@ -1,8 +1,5 @@
-c @copyright produce by Jgw
-p cnf 6 5
-2 0
+P cnf 6 4
+-1 2 0
 -3 4 0
 -5 -6 0
-6 5 -2 0
-3 0
-
+6 -5 -2 0

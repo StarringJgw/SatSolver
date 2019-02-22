@@ -9,6 +9,7 @@
 #include "myList.h"
 #include "fstream"
 #include "iostream"
+#include "cmath"
 
 typedef myList<myList<int >> Formula;
 typedef myList<int> Clause;
@@ -36,7 +37,29 @@ Formula readCNF(string target) {
         newFormula.push_back(newClause);
         cout << "";
     }
+    localFile.close();
     return newFormula;
+}
+
+void outputSolution(Solution solution, string target) {
+    fstream localFile;
+    localFile.open(target, ios::out);
+    for (int i = 0, size = solution.Size(), absNum = 1;;) {
+        if (i < size) {
+            if (abs(solution[i]) > absNum) {
+                localFile << absNum << " ";
+                absNum++;
+                continue;
+            } else {
+                localFile << solution[i] << " ";
+                i++;
+                absNum++;
+                continue;
+            }
+        } else
+            break;
+
+    }
 }
 
 #endif //TESTC_CNFPARSER_H
