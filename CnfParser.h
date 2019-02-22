@@ -41,9 +41,20 @@ Formula readCNF(string target) {
     return newFormula;
 }
 
-void outputSolution(Solution solution, string target) {
+void outputSolution(int status, string target, double time) {
     fstream localFile;
     localFile.open(target, ios::out);
+    localFile << "s " << status << endl;
+    localFile << "v" << endl;
+    localFile << "t " << time << endl;
+
+}
+
+void outputSolution(Solution solution, string target, double time) {
+    fstream localFile;
+    localFile.open(target, ios::out);
+    localFile << "s 1" << endl;
+    localFile << "v ";
     for (int i = 0, size = solution.Size(), absNum = 1;;) {
         if (i < size) {
             if (abs(solution[i]) > absNum) {
@@ -60,6 +71,8 @@ void outputSolution(Solution solution, string target) {
             break;
 
     }
+    localFile << endl;
+    localFile << "t " << time << endl;
 }
 
 #endif //TESTC_CNFPARSER_H
