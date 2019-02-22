@@ -18,25 +18,31 @@ bool Dpll(Formula origin, int baseValue) {
     if (baseValue != 0) {
         origin = Simplify(origin, baseValue);
         cout << "";
-        solution.push_back(baseValue);
+//        solution.push_back(baseValue);
     }
 
     int simpleValue = 0;
 
-    if (origin.Size() == 0)
+    if (origin.Size() == 0) {
+//        solution.push_back(baseValue);
         return true;  //empty formula--Solved
+    }
     for (auto p = origin.Start();; p = p->next) {
         auto temp = p->data.Start();
         if (temp == NULL) {
-            solution.erase(solution.End());
+//            solution.erase(solution.End());
             return false;  //empty clause--No Slution
 
         }
         if (temp == p->data.End()) {
             //single clause--use it to further simplify
             simpleValue = temp->data;
-            return Dpll(origin, simpleValue);
-            break;
+            if (Dpll(origin, simpleValue)) {
+                solution.push_back(simpleValue);
+                return true;
+            } else
+                return false;
+//            break;
         }
         if (p == origin.End()) {
             simpleValue = temp->data;
@@ -59,12 +65,18 @@ bool Dpll(Formula origin, int baseValue) {
         }
     }
 
-    if (Dpll(origin, simpleValue))
+    if (Dpll(origin, simpleValue)) {
+        solution.push_back(simpleValue);
         return true;
-    solution.erase(solution.End());
+    }
+//    solution.erase(solution.End());
     origin.Clear();
 
-    return Dpll(backup, -simpleValue);
+    if (Dpll(backup, -simpleValue)) {
+        solution.push_back(-simpleValue);
+        return true;
+    }
+    return false;
     //remain backup!?
 }
 
@@ -94,7 +106,7 @@ auto DpllBack(Formula origin) {
 int main(void) {
 
     string localFileName;
-    localFileName = "False_0";
+    localFileName = "True_M2";
     regex pattern(".cnf");
     string localFileNameSelected = regex_replace(localFileName, pattern, "");
     auto f1 = readCNF("../set/" + localFileName);
@@ -104,6 +116,7 @@ int main(void) {
     auto t2 = chrono::steady_clock::now();
     chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double >>(t2 - t1);
     cout << x << endl << "Time(s): " << time_span.count() << "" << endl;
+    ShowVector(solution);
     if (x == 0) {
         outputSolution(0, "../set/" + localFileNameSelected + ".res", time_span.count() * 1000);
     } else {
