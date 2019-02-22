@@ -92,35 +92,7 @@ auto DpllBack(Formula origin) {
 
 int main(void) {
     myList<myList<int>> formula;
-    formula.push_back(*(new myList<int>));
-    formula.push_back(*(new myList<int>));
-    formula.push_back(*(new myList<int>));
-    formula.push_back(*(new myList<int>));
-    formula.push_back(*(new myList<int>));
 
-    formula[0].push_back(2);
-    formula[1].push_back(-3);
-    formula[1].push_back(4);
-    formula[2].push_back(-5);
-    formula[2].push_back(-6);
-    formula[3].push_back(6);
-    formula[3].push_back(5);
-    formula[3].push_back(-2);
-    formula[4].push_back(3);
-
-    Formula testF;
-    testF.push_back(*(new Clause));
-    testF.push_back(*(new Clause));
-    testF.push_back(*(new Clause));
-    testF.push_back(*(new Clause));
-    testF[0].push_back(1);
-    testF[0].push_back(2);
-    testF[1].push_back(1);
-    testF[1].push_back(-2);
-    testF[2].push_back(-1);
-    testF[2].push_back(2);
-    testF[3].push_back(-1);
-    testF[3].push_back(-2);
 
 //    Show(formula);
     auto f1 = readCNF("../set/base_test.cnf");
