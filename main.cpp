@@ -7,6 +7,7 @@
 #include "fstream"
 #include "Dpll.h"
 #include "chrono"
+#include "CnfParser.h"
 //#include "algorithm"
 using namespace std;
 
@@ -88,31 +89,6 @@ auto DpllBack(Formula origin) {
     }
 }
 
-Formula readCNF() {
-    fstream localFile;
-    localFile.open("./set/True_L1", ios::in);
-    Formula newFormula;
-    for (; !localFile.eof();) {
-        int newSymbol;
-        localFile >> newSymbol;
-//        string c("c"),p("p");
-        if (localFile.fail()) {
-            localFile.clear();
-            localFile.ignore(numeric_limits<streamsize>::max(), '\n');
-            continue;
-        }
-        Clause newClause;
-//        localFile >> newSymbol;
-        for (; newSymbol != 0;) {
-            newClause.push_back(newSymbol);
-            localFile >> newSymbol;
-        }
-        newFormula.push_back(newClause);
-        cout << "";
-    }
-    return newFormula;
-}
-
 
 int main(void) {
     myList<myList<int>> formula;
@@ -147,7 +123,7 @@ int main(void) {
     testF[3].push_back(-2);
 
 //    Show(formula);
-    auto f1 = readCNF();
+    auto f1 = readCNF("../set/base_test.cnf");
 //    Show(f1);
     try {
 //        Show(testF);
@@ -156,8 +132,8 @@ int main(void) {
         auto x = Dpll(f1, 0);
         auto t2 = chrono::steady_clock::now();
         chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double >>(t2 - t1);
-        cout << x << endl << time_span.count() << endl;
-//        ShowVector(solution);
+        cout << x << endl << "Time(s): " << time_span.count() << "" << endl;
+        ShowVector(solution);
     }
     catch (int status) {
         cout << status << "\tNo Solution" << endl;
