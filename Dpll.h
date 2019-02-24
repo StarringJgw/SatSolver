@@ -5,6 +5,7 @@
 #define TESTC_DPLL_H
 
 #include "iostream"
+#include "fstream"
 #include "myVector.h"
 #include "myList.h"
 #include "cmath"
@@ -15,8 +16,15 @@ typedef myList<int> Clause;
 typedef myVector<int> Solution;
 
 class SatSolver {
+private:
+    Formula origin;
+
 public:
     Solution solution;
+
+    double time;
+
+    bool status;
 
     SatSolver() {
         Solution solution = *new Solution;
@@ -28,22 +36,18 @@ public:
 
     bool findBlank(Formula origin);
 
-    Formula Show(Formula origin);
+    void Show(Formula origin);
+
+    Solution Solve(Formula origin);
 
     bool Dpll(Formula origin, int baseValue);
 
-    void Open(string name) {
-        localName = name;
-        regex pattern(".cnf");
-        realName = regex_replace(localName, pattern, "");
+    void Open(Formula x) {
+        origin = x;
     }
 
-private:
-    string localName;
-    string realName;
-    auto
+    void SortSolution();
 };
-
 Formula SatSolver::Simplify(Formula origin, int target) {
     for (auto p = origin.Start();;) {
         //use p to traverse origin
@@ -96,7 +100,7 @@ bool SatSolver::findBlank(Formula origin) {
     }
 }
 
-Formula SatSolver::Show(Formula origin) {
+void SatSolver::Show(Formula origin) {
     cout << "--------------------------------" << endl;
     for (int i = 0; i < origin.Size(); i++) {
         for (auto p = origin[i].Start();; p = p->next) {
@@ -111,6 +115,22 @@ Formula SatSolver::Show(Formula origin) {
     }
     cout << endl;
     fflush(stdout);
+}
+
+Solution SatSolver::Solve(Formula origin) {
+    auto t1 = chrono::steady_clock::now();
+    status = Dpll(origin, 0);
+    auto t2 = chrono::steady_clock::now();
+    chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double >>(t2 - t1);
+    time = time_span.count();
+    cout << status << endl << "Time(s): " << time << "" << endl;
+    if (status == 0)
+        return {};
+    else if (status == 1) {
+        SortSolution();
+        return solution;
+    }
+    return {};
 }
 
 bool SatSolver::Dpll(Formula origin, int baseValue) {
@@ -178,6 +198,7 @@ bool SatSolver::Dpll(Formula origin, int baseValue) {
     return false;
     //remain backup!?
 }
+
 template<class T>
 int ShowVector(myVector<T> target) {
     for (auto p = target.Start();;) {
@@ -190,7 +211,7 @@ int ShowVector(myVector<T> target) {
     return 1;
 }
 
-void SortSolution(Solution &solution) {
+void SatSolver::SortSolution() {
     for (int flag = 1; flag != 0;) {
         flag = 0;
         for (int i = 0; i < solution.Size() - 1; i++) {
