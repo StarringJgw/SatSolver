@@ -15,6 +15,7 @@ typedef myList<myList<int >> Formula;
 typedef myList<int> Clause;
 typedef myVector<int> Solution;
 
+
 Formula readCNF(string target) {
     fstream localFile;
     localFile.open(target, ios::in);

@@ -8,12 +8,43 @@
 #include "myVector.h"
 #include "myList.h"
 #include "cmath"
+#include "regex"
 
 typedef myList<myList<int >> Formula;
 typedef myList<int> Clause;
 typedef myVector<int> Solution;
 
-Formula Simplify(Formula origin, int target) {
+class SatSolver {
+public:
+    Solution solution;
+
+    SatSolver() {
+        Solution solution = *new Solution;
+    }
+
+    Formula Simplify(Formula origin, int target);
+
+    int findSingle(Formula origin);
+
+    bool findBlank(Formula origin);
+
+    Formula Show(Formula origin);
+
+    bool Dpll(Formula origin, int baseValue);
+
+    void Open(string name) {
+        localName = name;
+        regex pattern(".cnf");
+        realName = regex_replace(localName, pattern, "");
+    }
+
+private:
+    string localName;
+    string realName;
+    auto
+};
+
+Formula SatSolver::Simplify(Formula origin, int target) {
     for (auto p = origin.Start();;) {
         //use p to traverse origin
         for (auto pList = p->data.Start(); pList != NULL; pList = pList->next) {
@@ -39,7 +70,7 @@ Formula Simplify(Formula origin, int target) {
     return origin;
 }
 
-int findSingle(Formula origin) {
+int SatSolver::findSingle(Formula origin) {
     for (auto p = origin.Start();;) {
         auto pFirst = p->data.Start();
         if (pFirst != NULL && pFirst == p->data.End()) {
@@ -52,7 +83,7 @@ int findSingle(Formula origin) {
     }
 }
 
-bool findBlank(Formula origin) {
+bool SatSolver::findBlank(Formula origin) {
     for (auto p = origin.Start();;) {
         auto pFirst = p->data.Start();
         if (pFirst == NULL) {
@@ -65,7 +96,7 @@ bool findBlank(Formula origin) {
     }
 }
 
-Formula Show(Formula origin) {
+Formula SatSolver::Show(Formula origin) {
     cout << "--------------------------------" << endl;
     for (int i = 0; i < origin.Size(); i++) {
         for (auto p = origin[i].Start();; p = p->next) {
@@ -82,6 +113,71 @@ Formula Show(Formula origin) {
     fflush(stdout);
 }
 
+bool SatSolver::Dpll(Formula origin, int baseValue) {
+    if (baseValue != 0) {
+        origin = Simplify(origin, baseValue);
+        cout << "";
+//        solution.push_back(baseValue);
+    }
+
+    int simpleValue = 0;
+
+    if (origin.Size() == 0) {
+//        solution.push_back(baseValue);
+        return true;  //empty formula--Solved
+    }
+    for (auto p = origin.Start();; p = p->next) {
+        auto temp = p->data.Start();
+        if (temp == NULL) {
+//            solution.erase(solution.End());
+            return false;  //empty clause--No Slution
+
+        }
+        if (temp == p->data.End()) {
+            //single clause--use it to further simplify
+            simpleValue = temp->data;
+            if (Dpll(origin, simpleValue)) {
+                solution.push_back(simpleValue);
+                return true;
+            } else
+                return false;
+//            break;
+        }
+        if (p == origin.End()) {
+            simpleValue = temp->data;
+            break;
+        }
+    }
+    auto backup = *(new Formula);
+    for (auto p = origin.Start();; p = p->next) {
+        auto tempClause = *(new Clause);
+
+        for (auto pList = p->data.Start(), pListEnd = p->data.End(); pList != NULL; pList = pList->next) {
+            tempClause.push_back(pList->data);
+            if (pList == pListEnd) {
+                break;
+            }
+        }
+        backup.push_back(tempClause);
+        if (p == origin.End()) {
+            break;
+        }
+    }
+
+    if (Dpll(origin, simpleValue)) {
+        solution.push_back(simpleValue);
+        return true;
+    }
+//    solution.erase(solution.End());
+    origin.Clear();
+
+    if (Dpll(backup, -simpleValue)) {
+        solution.push_back(-simpleValue);
+        return true;
+    }
+    return false;
+    //remain backup!?
+}
 template<class T>
 int ShowVector(myVector<T> target) {
     for (auto p = target.Start();;) {
