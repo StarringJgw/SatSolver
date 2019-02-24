@@ -68,6 +68,7 @@ public:
     reference operator[](const size_t n) {
         return *(start + n);
     }
+
 };
 
 #endif

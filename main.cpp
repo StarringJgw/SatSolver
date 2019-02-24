@@ -17,7 +17,7 @@ int main(void) {
     auto satSolver = *new SatSolver;
     auto cnfParser = *new CnfParser;
 
-    Formula formula = cnfParser.readCnf("True_M1");
+    Formula formula = cnfParser.readCnf("Base_A1.cnf");
     Solution solution = satSolver.Solve(formula);
     cnfParser.outputSolution(satSolver.status, solution, satSolver.time);
 

@@ -13,6 +13,7 @@
 
 typedef myList<myList<int >> Formula;
 typedef myList<int> Clause;
+typedef Clause *Iterator;
 typedef myVector<int> Solution;
 
 class SatSolver {
@@ -23,6 +24,8 @@ public:
     Solution solution;
 
     double time;
+
+    double timeOpt;
 
     bool status;
 
@@ -41,6 +44,8 @@ public:
     Solution Solve(Formula origin);
 
     bool Dpll(Formula origin, int baseValue);
+
+    bool DpllOpt(Formula origin, int baseValue);
 
     void Open(Formula x) {
         origin = x;
@@ -118,12 +123,33 @@ void SatSolver::Show(Formula origin) {
 }
 
 Solution SatSolver::Solve(Formula origin) {
+    auto backup = *(new Formula);
+    for (auto p = origin.Start();; p = p->next) {
+        auto tempClause = *(new Clause);
+        for (auto pList = p->data.Start(), pListEnd = p->data.End(); pList != NULL; pList = pList->next) {
+            tempClause.push_back(pList->data);
+            if (pList == pListEnd) {
+                break;
+            }
+        }
+        backup.push_back(tempClause);
+        if (p == origin.End()) {
+            break;
+        }
+    }
     auto t1 = chrono::steady_clock::now();
-    status = Dpll(origin, 0);
+    status = DpllOpt(origin, 0);
     auto t2 = chrono::steady_clock::now();
+    Dpll(backup, 0);
+    auto t3 = chrono::steady_clock::now();
     chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double >>(t2 - t1);
+    timeOpt = time_span.count();
+    time_span = chrono::duration_cast<chrono::duration<double >>(t3 - t2);
     time = time_span.count();
-    cout << status << endl << "Time(s): " << time << "" << endl;
+    cout << status << endl << "TimeOptimize(s): " << timeOpt << endl;
+    cout << "TimeOrign(s): " << time << endl;
+    cout << "Rate: " << (time - timeOpt) / time << endl;
+
     if (status == 0)
         return {};
     else if (status == 1) {
@@ -192,6 +218,87 @@ bool SatSolver::Dpll(Formula origin, int baseValue) {
     origin.Clear();
 
     if (Dpll(backup, -simpleValue)) {
+        solution.push_back(-simpleValue);
+        return true;
+    }
+    return false;
+    //remain backup!?
+}
+
+bool SatSolver::DpllOpt(Formula origin, int baseValue) {
+    if (baseValue != 0) {
+        origin = Simplify(origin, baseValue);
+        cout << "";
+//        solution.push_back(baseValue);
+    }
+
+    int simpleValue = 0;
+
+    if (origin.Size() == 0) {
+//        solution.push_back(baseValue);
+        return true;  //empty formula--Solved
+    }
+    auto p = origin.Start();
+    bool checkDouble = 0;
+    int doubleVal = 0;
+    for (;; p = p->next) {
+        auto temp = p->data.Start();
+
+        if (temp == NULL) {
+//            solution.erase(solution.End());
+            return false;  //empty clause--No Slution
+
+        }
+        if (temp == p->data.End()) {
+            //single clause--use it to further simplify
+            simpleValue = temp->data;
+            if (DpllOpt(origin, simpleValue)) {
+                solution.push_back(simpleValue);
+                return true;
+            } else
+                return false;
+//            break;
+        }
+
+        if (checkDouble == 0) {
+            checkDouble = 1;
+            if (p->data.Start()->next->next == p->data.End()) {
+                doubleVal = p->data.Start()->data;
+            }
+
+        }
+        if (p == origin.End()) {
+            if (doubleVal != 0)
+                simpleValue = doubleVal;
+            else
+                simpleValue = temp->data;
+            break;
+        }
+    }
+    auto backup = *(new Formula);
+    for (auto p = origin.Start();; p = p->next) {
+        auto tempClause = *(new Clause);
+
+        for (auto pList = p->data.Start(), pListEnd = p->data.End(); pList != NULL; pList = pList->next) {
+            tempClause.push_back(pList->data);
+            if (pList == pListEnd) {
+                break;
+            }
+        }
+        backup.push_back(tempClause);
+        if (p == origin.End()) {
+            break;
+        }
+    }
+
+    if (DpllOpt(origin, simpleValue)) {
+        solution.push_back(simpleValue);
+        return true;
+    }
+//    solution.erase(solution.End());
+    origin.Clear();
+
+    if (DpllOpt(backup, -simpleValue)) {
         solution.push_back(-simpleValue);
         return true;
     }
