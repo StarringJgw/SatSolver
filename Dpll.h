@@ -140,11 +140,12 @@ Solution SatSolver::Solve(Formula origin) {
     auto t1 = chrono::steady_clock::now();
     status = DpllOpt(origin, 0);
     auto t2 = chrono::steady_clock::now();
-    Dpll(backup, 0);
     auto t3 = chrono::steady_clock::now();
+    status = Dpll(backup, 0);
+    auto t4 = chrono::steady_clock::now();
     chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double >>(t2 - t1);
     timeOpt = time_span.count();
-    time_span = chrono::duration_cast<chrono::duration<double >>(t3 - t2);
+    time_span = chrono::duration_cast<chrono::duration<double >>(t4 - t3);
     time = time_span.count();
     cout << status << endl << "TimeOptimize(s): " << timeOpt << endl;
     cout << "TimeOrign(s): " << time << endl;
