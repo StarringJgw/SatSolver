@@ -155,22 +155,10 @@ void SatSolver::Show(Formula origin) {
 }
 
 Solution SatSolver::Solve(Formula origin, int symbolNum) {
-    auto backup = *(new Formula);
-    for (auto p = origin.Start();; p = p->next) {
-        auto tempClause = *(new Clause);
-        for (auto pList = p->data.Start(), pListEnd = p->data.End(); pList != NULL; pList = pList->next) {
-            tempClause.push_back(pList->data);
-            if (pList == pListEnd) {
-                break;
-            }
-        }
-        backup.push_back(tempClause);
-        if (p == origin.End()) {
-            break;
-        }
-    }
+    auto backup = Clone(origin);
+    auto backupOpt = Clone(origin);
     auto t1 = chrono::steady_clock::now();
-    status = DpllOpt(origin, 0);
+    status = DpllOpt(backupOpt, 0);
     auto t2 = chrono::steady_clock::now();
     Reset();
     auto t3 = chrono::steady_clock::now();

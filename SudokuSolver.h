@@ -27,21 +27,37 @@ private:
     SatSolver satSolver = *new SatSolver;
 public:
     Formula formula;
+    int answerBoard[9][9];
+    int questionBoard[9][9];
 
-    int ShowBoard() {
-        cout << endl << "------------------------" << endl;
-        for (int i1 = 0; i1 < 9; i1++) {
-            for (int i2 = 0; i2 < 9; i2++) {
-                cout << graphBoard[i1][i2] << " ";
+    int ShowBoard(int type) {
+        if (type == 1) {
+            cout << endl << "------------------------" << endl;
+            for (int i1 = 0; i1 < 9; i1++) {
+                for (int i2 = 0; i2 < 9; i2++) {
+                    cout << answerBoard[i1][i2] << " ";
+                }
+                cout << endl;
             }
-            cout << endl;
+            cout << endl << "------------------------" << endl;
+            fflush(stdout);
+        } else {
+            cout << endl << "------------------------" << endl;
+            for (int i1 = 0; i1 < 9; i1++) {
+                for (int i2 = 0; i2 < 9; i2++) {
+                    cout << questionBoard[i1][i2] << " ";
+                }
+                cout << endl;
+            }
+            cout << endl << "------------------------" << endl;
+            fflush(stdout);
         }
-        cout << endl << "------------------------" << endl;
-        fflush(stdout);
+
+
         return 0;
     }
 
-    int graphBoard[9][9];
+
 
     SudokuSolver() {
 
@@ -51,7 +67,8 @@ public:
 
         for (int i1 = 0; i1 < 9; i1++) {
             for (int i2 = 0; i2 < 9; i2++) {
-                graphBoard[i1][i2] = 0;
+                answerBoard[i1][i2] = 0;
+                questionBoard[i1][i2] = 0;
             }
         }
 
@@ -114,6 +131,22 @@ public:
     }
 
     void GenerateFinal() {
+        CreateAnswer();
+        for (int i1 = 0; i1 < 9; i1++) {
+            for (int i2 = 0; i2 < 9; i2++) {
+                questionBoard[i1][i2] = answerBoard[i1][i2];
+            }
+        }
+        for (int i1 = 0; i1 < 9; i1++) {
+            for (int i2 = 0; i2 < 9; i2++) {
+                digHole(i1, i2);
+            }
+        }
+        ShowBoard(0);
+    }
+
+    void CreateAnswer() {
+        Formula answer = satSolver.Clone(formula);
         srand((unsigned) time(NULL));
         for (;;) {
             int randomSeq[81];
@@ -126,21 +159,21 @@ public:
                 int randomVal = (rand() % 9) + 1;
                 if (randomVal == 0)
                     cout << "";
-                AssignValue(randomSeq[i], randomVal);
+                AssignValue(randomSeq[i], randomVal, answer);
                 cout << "";
             }
             for (int i1 = 0; i1 < 9; i1++) {
                 for (int i2 = 0; i2 < 9; i2++) {
-                    cout << graphBoard[i1][i2] << " ";
+                    cout << answerBoard[i1][i2] << " ";
                 }
                 cout << endl;
             }
 
             satSolver.Reset();
-            satSolver.Solve(satSolver.Clone(formula), 729);
+            satSolver.Solve(answer, 729);
             if (satSolver.status == true) {
                 ShowVector(satSolver.solution);
-                ShowBoard();
+                ShowBoard(1);
                 int size = satSolver.solution.Size();
                 for (int i = 0; i < size; i++) {
                     int temp = satSolver.solution[i];
@@ -149,33 +182,18 @@ public:
                         int row = entry / 9;
                         int column = entry % 9;
                         int num = temp - entry * 9;
-
-                        graphBoard[row][column] = num;
-                        //have 0??
-//                        for (int i1 = 0; i1 < 9; i1++) {
-//                            for (int i2 = 0; i2 < 9; i2++) {
-//                                cout << graphBoard[i1][i2]+1 << " ";
-//                            }
-//                            cout << endl;
-//                        }
-//                        cout <<endl<<"------------------------------"<<endl;
+                        answerBoard[row][column] = num;
                     }
                 }
-                ShowBoard();
-//                for (int i1 = 0; i1 < 9; i1++) {
-//                    for (int i2 = 0; i2 < 9; i2++) {
-//                        cout << graphBoard[i1][i2] << " ";
-//                    }
-//                    cout << endl;
-//                }
+                ShowBoard(1);
                 return;
             } else {
                 for (int i = 0; i < 11; i++) {
-                    formula.erase(formula.End());
+                    answer.erase(answer.End());
                 }
                 for (int i1 = 0; i1 < 9; i1++) {
                     for (int i2 = 0; i2 < 9; i2++) {
-                        graphBoard[i1][i2] = 0;
+                        answerBoard[i1][i2] = 0;
                     }
                 }
             }
@@ -191,39 +209,47 @@ public:
         num = code % 9;
     }
 
-    void AssignValue(int entry, int num) {
+    void AssignValue(int entry, int num, Formula assume) {
         Clause newRule = *new Clause;
         newRule.push_back(toCode(entry, num, 1));
-        formula.push_back(newRule);
-        graphBoard[entry / 9][entry % 9] = num;
-        ShowBoard();
+        assume.push_back(newRule);
+        answerBoard[entry / 9][entry % 9] = num;
+//        ShowBoard(1);
     }
 
-//    void AssignValue(int entry, int num){
-//        Clause relatedRow=*new Clause;
-//        Clause relatedColumn=*new Clause;
-//        Clause relatedGrid=*new Clause;
-//        for(int i=0;i<9;i++){
-//            if(entry!=i)
-//                relatedRow.push_back(toCode(entry-entry%9+i,num,-1));
-//        }
-//        formula.push_back(relatedRow);
-//        for(int i=0;i<9;i++){
-//            if(entry%9+i*9!=entry)
-//                relatedColumn.push_back(toCode(entry%9+i*9,num,-1));
-//        }
-//        formula.push_back(relatedColumn);
-//        {
-//            int grid=3*((entry/9)/3)+(entry%9)%3-1;
-//            int central=18*(grid/3)+3*(grid%3)+10;
-//            relatedRow.push_back(toCode(central-10,num,-1));
-//            relatedRow.push_back(toCode(central-8,num,-1));
-//            relatedRow.push_back(toCode(central+10,num,-1));
-//            relatedRow.push_back(toCode(central+8,num,-1));
-//            formula.push_back(relatedGrid);
-//        }
-//    }
+    bool isValid(Formula target) {
+        satSolver.Reset();
+        satSolver.Solve(target, 729);
+        return satSolver.status;
+    }
 
+    bool digHole(int row, int column) {
+        int num = questionBoard[row][column];
+        for (int i = 1; i <= 9; i++) {
+            if (i == num)
+                continue;
+            questionBoard[row][column] = i;
+            if (isValid(CreateConstraint())) {
+                questionBoard[row][column] = num;
+                return false;
+            }
+        }
+        questionBoard[row][column] = 0;
+        ShowBoard(0);
+        return true;
+    }
+
+    Formula CreateConstraint() {
+        Formula assume = satSolver.Clone(formula);
+        for (int i1 = 0; i1 < 9; i1++) {
+            for (int i2 = 0; i2 < 9; i2++) {
+                if (questionBoard[i1][i2] != 0) {
+                    AssignValue(i1 * 9 + i2, questionBoard[i1][i2], assume);
+                }
+            }
+        }
+        return assume;
+    }
 };
 
 #endif //TESTC_SUDOKUSOLVER_H

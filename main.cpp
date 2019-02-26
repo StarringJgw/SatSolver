@@ -18,7 +18,7 @@ int main(void) {
     auto satSolver = *new SatSolver;
     auto cnfParser = *new CnfParser;
     auto sudokuSolver = *new SudokuSolver;
-    Formula formula = cnfParser.readCnf("True_M1");
+    Formula formula = cnfParser.readCnf("True_S7.cnf");
 //    cout << formula.Size()<< endl;
     Solution solution = satSolver.Solve(formula, cnfParser.symbolNum);
     cnfParser.outputSolution(satSolver.status, solution, satSolver.time);
