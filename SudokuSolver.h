@@ -76,7 +76,7 @@ public:
             int current[9] = {i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8};
             PushBasicRule(current);
         }
-        cout << formula.Size() << endl;
+//        cout << formula.Size() << endl;
         //ensure each row
         for (int row = 1; row <= 9; row++) {
             int currentNum = (row - 1) * 81 + 1;
@@ -86,7 +86,7 @@ public:
                 PushBasicRule(current);
             }
         }
-        cout << formula.Size() << endl;
+//        cout << formula.Size() << endl;
         //ensure each column
         for (int column = 1; column <= 9; column++) {
             int currentNum = (column - 1) * 9 + 1;
@@ -97,7 +97,7 @@ public:
                 PushBasicRule(current);
             }
         }
-        cout << formula.Size() << endl;
+//        cout << formula.Size() << endl;
         //ensure each grid
         for (int grid = 1; grid <= 9; grid++) {
             int currentNum = ((grid - 1) / 3) * 243 + ((grid - 1) % 3) * 27 + 1;
@@ -142,7 +142,7 @@ public:
         }
         random_shuffle(begin(randomSeq), end(randomSeq));
 
-        for (int i = 0; i < 81; i++) {
+        for (int i = 0; i < 56; i++) {
             if (i % 9 == 0)
                 cout << "";
             digHoleOpt(randomSeq[i] / 9, randomSeq[i] % 9);
@@ -171,18 +171,11 @@ public:
                 AssignValue(randomSeq[i], randomVal, answer);
                 cout << "";
             }
-            for (int i1 = 0; i1 < 9; i1++) {
-                for (int i2 = 0; i2 < 9; i2++) {
-                    cout << answerBoard[i1][i2] << " ";
-                }
-                cout << endl;
-            }
 
             satSolver.Reset();
             satSolver.Solve(answer, 729);
             if (satSolver.status == true) {
                 ShowVector(satSolver.solution);
-                ShowBoard(1);
                 int size = satSolver.solution.Size();
                 for (int i = 0; i < size; i++) {
                     int temp = satSolver.solution[i];
