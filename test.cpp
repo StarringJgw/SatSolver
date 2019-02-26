@@ -9,9 +9,10 @@ int main(void) {
     SudokuSolver x = *new SudokuSolver;
     SatSolver satSolver = *new SatSolver;
     int target[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    x.GenerateFinal();
 //    x.PushBasicRule(target);
 //    satSolver.Show(x.formula);
-    cout << x.formula.Size();
+//    cout << x.formula.Size();
     return 0;
 }
 /*

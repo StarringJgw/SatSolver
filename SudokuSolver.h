@@ -9,6 +9,10 @@
 #include "myVector.h"
 #include "cmath"
 #include "iostream"
+#include "stdlib.h"
+#include "time.h"
+#include "algorithm"
+#include "Dpll.h"
 typedef myList<myList<int >> Formula;
 typedef myList<int> Clause;
 typedef Clause *Iterator;
@@ -19,10 +23,25 @@ typedef int Board[9][9];
 
 class SudokuSolver {
 private:
+    int tried[81];
+    SatSolver satSolver = *new SatSolver;
 public:
     Formula formula;
 
+    int graphBoard[9][9];
+
     SudokuSolver() {
+
+        for (int i = 0; i < 81; i++) {
+            tried[i] = 0;
+        }
+
+        for (int i1 = 0; i1 < 9; i1++) {
+            for (int i2 = 0; i2 < 9; i2++) {
+                graphBoard[i1][i2] = 0;
+            }
+        }
+
         formula = *new Formula;
         //ensure each entry have one number
         for (int i = 1; i <= 729; i = i + 9) {
@@ -76,6 +95,85 @@ public:
         }
         formula.push_back(least);
     }
+
+    bool IsUnique(int num) {
+        int begin = (num - 1) / 9;
+    }
+
+    void GenerateFinal() {
+        srand((unsigned) time(NULL));
+        for (;;) {
+            int randomSeq[81];
+            for (int i = 0; i < 81; i++) {
+                randomSeq[i] = i;
+            }
+            random_shuffle(begin(randomSeq), end(randomSeq));
+
+            for (int i = 0; i < 11; i++) {
+                int randomVal = (rand() % 9) + 1;
+                AssignValue(randomSeq[i], randomVal);
+            }
+            for (int i1 = 0; i1 < 9; i1++) {
+                for (int i2 = 0; i2 < 9; i2++) {
+                    cout << graphBoard[i1][i2] << " ";
+                }
+                cout << endl;
+            }
+
+            satSolver.Reset();
+            satSolver.Solve(satSolver.Clone(formula));
+            if (satSolver.status == true) {
+                ShowVector(satSolver.solution);
+                return;
+            } else {
+                for (int i = 0; i < 11; i++) {
+                    formula.erase(formula.End());
+                }
+                for (int i1 = 0; i1 < 9; i1++) {
+                    for (int i2 = 0; i2 < 9; i2++) {
+                        graphBoard[i1][i2] = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    int toCode(int entry, int num, int status) {
+        return status * 9 * entry + num;
+    }
+
+    void AssignValue(int entry, int num) {
+        Clause newRule = *new Clause;
+        newRule.push_back(toCode(entry, num, 1));
+        formula.push_back(newRule);
+        graphBoard[entry / 9][entry % 9] = num;
+    }
+
+//    void AssignValue(int entry, int num){
+//        Clause relatedRow=*new Clause;
+//        Clause relatedColumn=*new Clause;
+//        Clause relatedGrid=*new Clause;
+//        for(int i=0;i<9;i++){
+//            if(entry!=i)
+//                relatedRow.push_back(toCode(entry-entry%9+i,num,-1));
+//        }
+//        formula.push_back(relatedRow);
+//        for(int i=0;i<9;i++){
+//            if(entry%9+i*9!=entry)
+//                relatedColumn.push_back(toCode(entry%9+i*9,num,-1));
+//        }
+//        formula.push_back(relatedColumn);
+//        {
+//            int grid=3*((entry/9)/3)+(entry%9)%3-1;
+//            int central=18*(grid/3)+3*(grid%3)+10;
+//            relatedRow.push_back(toCode(central-10,num,-1));
+//            relatedRow.push_back(toCode(central-8,num,-1));
+//            relatedRow.push_back(toCode(central+10,num,-1));
+//            relatedRow.push_back(toCode(central+8,num,-1));
+//            formula.push_back(relatedGrid);
+//        }
+//    }
+
 };
 
 #endif //TESTC_SUDOKUSOLVER_H

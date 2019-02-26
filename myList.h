@@ -64,10 +64,12 @@ public:
     }
 
     void Clear() {
-        for (auto p = start->next; p != end;) {
-            auto temp = p->next;
-            erase(p);
-            p = temp;
+        if (start->next != end) {
+            for (auto p = start->next; p != end;) {
+                auto temp = p->next;
+                erase(p);
+                p = temp;
+            }
         }
     }
 

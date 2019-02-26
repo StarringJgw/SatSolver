@@ -31,6 +31,16 @@ public:
 
     SatSolver() {
         Solution solution = *new Solution;
+        time = 0;
+        timeOpt = 0;
+        status = false;
+    }
+
+    void Reset() {
+        Solution solution = *new Solution;
+        time = 0;
+        timeOpt = 0;
+        status = false;
     }
 
     Formula Simplify(Formula origin, int target);
@@ -52,6 +62,25 @@ public:
     }
 
     void SortSolution();
+
+    Formula Clone(Formula origin) {
+        auto backup = *(new Formula);
+        for (auto p = origin.Start();; p = p->next) {
+            auto tempClause = *(new Clause);
+
+            for (auto pList = p->data.Start(), pListEnd = p->data.End(); pList != NULL; pList = pList->next) {
+                tempClause.push_back(pList->data);
+                if (pList == pListEnd) {
+                    break;
+                }
+            }
+            backup.push_back(tempClause);
+            if (p == origin.End()) {
+                break;
+            }
+        }
+        return backup;
+    }
 };
 Formula SatSolver::Simplify(Formula origin, int target) {
     for (auto p = origin.Start();;) {
