@@ -57,10 +57,8 @@ public:
         return 0;
     }
 
-
-
     SudokuSolver() {
-
+        srand((unsigned) time(NULL));
         for (int i = 0; i < 81; i++) {
             tried[i] = 0;
         }
@@ -137,11 +135,22 @@ public:
                 questionBoard[i1][i2] = answerBoard[i1][i2];
             }
         }
-        for (int i1 = 0; i1 < 9; i1++) {
-            for (int i2 = 0; i2 < 9; i2++) {
-                digHole(i1, i2);
-            }
+
+        int randomSeq[81];
+        for (int i = 0; i < 81; i++) {
+            randomSeq[i] = i;
         }
+        random_shuffle(begin(randomSeq), end(randomSeq));
+
+        for (int i = 0; i < 81; i++) {
+            if (i % 9 == 0)
+                cout << "";
+            digHoleOpt(randomSeq[i] / 9, randomSeq[i] % 9);
+            cout << endl << i << endl;
+        }
+        cout << "Answer:" << endl;
+        ShowBoard(1);
+        cout << "Question: " << endl;
         ShowBoard(0);
     }
 
@@ -236,6 +245,64 @@ public:
         }
         questionBoard[row][column] = 0;
         ShowBoard(0);
+        return true;
+    }
+
+    bool digHoleOpt(int row, int column) {
+        int num = questionBoard[row][column];
+        for (int i = 1; i <= 9; i++) {
+            if (i == num)
+                continue;
+            questionBoard[row][column] = i;
+            if (backTrace(0)) {
+                questionBoard[row][column] = num;
+                return false;
+            }
+        }
+        questionBoard[row][column] = 0;
+        ShowBoard(0);
+        return true;
+    }
+
+    bool backTrace(int entry) {
+        if (entry == 81)
+            return true;
+        int row = entry / 9, column = entry % 9;
+        if (questionBoard[row][column] == 0) {
+            for (int i = 1; i <= 9; i++) {
+                questionBoard[row][column] = i;
+                if (isValidPlace(entry)) {
+//                    questionBoard[row][column]=0;
+                    backTrace(entry + 1);
+                }
+            }
+            questionBoard[row][column] = 0;
+        } else {
+            backTrace(entry + 1);
+        }
+    }
+
+    bool isValidPlace(int entry) {
+        if (entry == 82)
+            return true;
+        int row = entry / 9, column = entry % 9;
+        int num = questionBoard[row][column];
+        for (int i = 0; i < 9; i++) {
+            if (questionBoard[row][i] == num && i != column)
+                return false;
+        }
+        for (int i = 0; i < 9; i++) {
+            if (questionBoard[i][column] == num && i != row)
+                return false;
+        }
+
+        int gridRow = row / 3 * 3, gridColumn = column / 3 * 3;
+        for (int i = gridRow; i < gridRow + 3; i++) {
+            for (int j = gridColumn; j < gridColumn + 3; j++) {
+                if (questionBoard[i][j] == num && i != row && j != column)
+                    return false;
+            }
+        }
         return true;
     }
 

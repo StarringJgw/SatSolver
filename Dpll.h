@@ -170,9 +170,9 @@ Solution SatSolver::Solve(Formula origin, int symbolNum) {
     timeOpt = time_span.count();
     time_span = chrono::duration_cast<chrono::duration<double >>(t4 - t3);
     time = time_span.count();
-    cout << status << endl << "TimeOptimize(s): " << timeOpt << endl;
-    cout << "TimeOrign(s): " << time << endl;
-    cout << "Rate: " << (time - timeOpt) / time << endl;
+//    cout << status << endl << "TimeOptimize(s): " << timeOpt << endl;
+//    cout << "TimeOrign(s): " << time << endl;
+//    cout << "Rate: " << (time - timeOpt) / time << endl;
 
     if (status == 0)
         return {};
