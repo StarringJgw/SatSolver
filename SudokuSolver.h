@@ -28,6 +28,19 @@ private:
 public:
     Formula formula;
 
+    int ShowBoard() {
+        cout << endl << "------------------------" << endl;
+        for (int i1 = 0; i1 < 9; i1++) {
+            for (int i2 = 0; i2 < 9; i2++) {
+                cout << graphBoard[i1][i2] << " ";
+            }
+            cout << endl;
+        }
+        cout << endl << "------------------------" << endl;
+        fflush(stdout);
+        return 0;
+    }
+
     int graphBoard[9][9];
 
     SudokuSolver() {
@@ -111,7 +124,10 @@ public:
 
             for (int i = 0; i < 11; i++) {
                 int randomVal = (rand() % 9) + 1;
+                if (randomVal == 0)
+                    cout << "";
                 AssignValue(randomSeq[i], randomVal);
+                cout << "";
             }
             for (int i1 = 0; i1 < 9; i1++) {
                 for (int i2 = 0; i2 < 9; i2++) {
@@ -124,15 +140,18 @@ public:
             satSolver.Solve(satSolver.Clone(formula), 729);
             if (satSolver.status == true) {
                 ShowVector(satSolver.solution);
+                ShowBoard();
                 int size = satSolver.solution.Size();
                 for (int i = 0; i < size; i++) {
                     int temp = satSolver.solution[i];
                     if (temp > 0) {
-                        int entry = temp / 9;
+                        int entry = (temp - 1) / 9;
                         int row = entry / 9;
                         int column = entry % 9;
                         int num = temp - entry * 9;
+
                         graphBoard[row][column] = num;
+                        //have 0??
 //                        for (int i1 = 0; i1 < 9; i1++) {
 //                            for (int i2 = 0; i2 < 9; i2++) {
 //                                cout << graphBoard[i1][i2]+1 << " ";
@@ -142,12 +161,13 @@ public:
 //                        cout <<endl<<"------------------------------"<<endl;
                     }
                 }
-                for (int i1 = 0; i1 < 9; i1++) {
-                    for (int i2 = 0; i2 < 9; i2++) {
-                        cout << graphBoard[i1][i2] + 1 << " ";
-                    }
-                    cout << endl;
-                }
+                ShowBoard();
+//                for (int i1 = 0; i1 < 9; i1++) {
+//                    for (int i2 = 0; i2 < 9; i2++) {
+//                        cout << graphBoard[i1][i2] << " ";
+//                    }
+//                    cout << endl;
+//                }
                 return;
             } else {
                 for (int i = 0; i < 11; i++) {
@@ -176,6 +196,7 @@ public:
         newRule.push_back(toCode(entry, num, 1));
         formula.push_back(newRule);
         graphBoard[entry / 9][entry % 9] = num;
+        ShowBoard();
     }
 
 //    void AssignValue(int entry, int num){
