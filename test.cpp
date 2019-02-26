@@ -11,7 +11,7 @@ int main(void) {
     SatSolver satSolver = *new SatSolver;
     int target[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     x.GenerateFinal();
-
+//Version Test
 //    x.PushBasicRule(target);
 //    satSolver.Show(x.formula);
 //    cout << x.formula.Size();
