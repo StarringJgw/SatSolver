@@ -121,9 +121,33 @@ public:
             }
 
             satSolver.Reset();
-            satSolver.Solve(satSolver.Clone(formula));
+            satSolver.Solve(satSolver.Clone(formula), 729);
             if (satSolver.status == true) {
                 ShowVector(satSolver.solution);
+                int size = satSolver.solution.Size();
+                for (int i = 0; i < size; i++) {
+                    int temp = satSolver.solution[i];
+                    if (temp > 0) {
+                        int entry = temp / 9;
+                        int row = entry / 9;
+                        int column = entry % 9;
+                        int num = temp - entry * 9;
+                        graphBoard[row][column] = num;
+//                        for (int i1 = 0; i1 < 9; i1++) {
+//                            for (int i2 = 0; i2 < 9; i2++) {
+//                                cout << graphBoard[i1][i2]+1 << " ";
+//                            }
+//                            cout << endl;
+//                        }
+//                        cout <<endl<<"------------------------------"<<endl;
+                    }
+                }
+                for (int i1 = 0; i1 < 9; i1++) {
+                    for (int i2 = 0; i2 < 9; i2++) {
+                        cout << graphBoard[i1][i2] + 1 << " ";
+                    }
+                    cout << endl;
+                }
                 return;
             } else {
                 for (int i = 0; i < 11; i++) {
@@ -140,6 +164,11 @@ public:
 
     int toCode(int entry, int num, int status) {
         return status * 9 * entry + num;
+    }
+
+    void toNum(int code, int &entry, int &num) {
+        entry = code / 9;
+        num = code % 9;
     }
 
     void AssignValue(int entry, int num) {

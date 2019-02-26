@@ -18,6 +18,7 @@ typedef myVector<int> Solution;
 
 class CnfParser {
 public:
+    int symbolNum;
     Formula readCnf(string target);
 //    void outputSolution(int status, string target, double time);
 
@@ -26,7 +27,7 @@ public:
 private:
     string localName;
     string realName;
-    int symbolNum;
+
 };
 
 Formula CnfParser::readCnf(string target) {
@@ -85,25 +86,28 @@ void CnfParser::outputSolution(bool status, Solution solution, double time) {
         localFile.open("../set/" + realName + ".res", ios::out);
         localFile << "s 1" << endl;
         localFile << "v ";
-        for (int i = 0, size = solution.Size(), absNum = 1;;) {
-            if (i < size) {
-                if (abs(solution[i]) > absNum) {
-                    localFile << absNum << " ";
-                    absNum++;
-                    continue;
-                } else {
-                    localFile << solution[i] << " ";
-                    i++;
-                    absNum++;
-                    continue;
-                }
-            } else {
-                for (; absNum <= symbolNum; absNum++) {
-                    localFile << absNum << " ";
-                }
-                break;
-            }
-
+//        for (int i = 0, size = solution.Size(), absNum = 1;;) {
+//            if (i < size) {
+//                if (abs(solution[i]) > absNum) {
+//                    localFile << absNum << " ";
+//                    absNum++;
+//                    continue;
+//                } else {
+//                    localFile << solution[i] << " ";
+//                    i++;
+//                    absNum++;
+//                    continue;
+//                }
+//            } else {
+//                for (; absNum <= symbolNum; absNum++) {
+//                    localFile << absNum << " ";
+//                }
+//                break;
+//            }
+//        }
+        for (int i = 0, size = solution.Size(); i < size;) {
+            localFile << solution[i] << " ";
+            i++;
         }
         localFile << endl;
         localFile << "t " << time << endl;

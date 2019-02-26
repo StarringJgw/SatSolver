@@ -23,6 +23,8 @@ private:
 public:
     Solution solution;
 
+    Solution solutionOpt;
+
     double time;
 
     double timeOpt;
@@ -38,6 +40,7 @@ public:
 
     void Reset() {
         Solution solution = *new Solution;
+        Solution solutionOpt = *new Solution;
         time = 0;
         timeOpt = 0;
         status = false;
@@ -51,7 +54,7 @@ public:
 
     void Show(Formula origin);
 
-    Solution Solve(Formula origin);
+    Solution Solve(Formula origin, int symbolNum);
 
     bool Dpll(Formula origin, int baseValue);
 
@@ -151,7 +154,7 @@ void SatSolver::Show(Formula origin) {
     fflush(stdout);
 }
 
-Solution SatSolver::Solve(Formula origin) {
+Solution SatSolver::Solve(Formula origin, int symbolNum) {
     auto backup = *(new Formula);
     for (auto p = origin.Start();; p = p->next) {
         auto tempClause = *(new Clause);
@@ -169,9 +172,12 @@ Solution SatSolver::Solve(Formula origin) {
     auto t1 = chrono::steady_clock::now();
     status = DpllOpt(origin, 0);
     auto t2 = chrono::steady_clock::now();
+    Reset();
     auto t3 = chrono::steady_clock::now();
     status = Dpll(backup, 0);
     auto t4 = chrono::steady_clock::now();
+
+
     chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double >>(t2 - t1);
     timeOpt = time_span.count();
     time_span = chrono::duration_cast<chrono::duration<double >>(t4 - t3);
@@ -184,6 +190,25 @@ Solution SatSolver::Solve(Formula origin) {
         return {};
     else if (status == 1) {
         SortSolution();
+        for (int i = 0, size = solution.Size(), absNum = 1;;) {
+            if (i < size) {
+                if (abs(solution[i]) > absNum) {
+                    solution.push_back(absNum);
+                    absNum++;
+                    continue;
+                } else {
+//                solution.push_back(solution[i]);
+                    i++;
+                    absNum++;
+                    continue;
+                }
+            } else {
+                for (; absNum <= symbolNum; absNum++) {
+                    solution.push_back(absNum);
+                }
+                break;
+            }
+        }
         return solution;
     }
     return {};
@@ -259,13 +284,13 @@ bool SatSolver::DpllOpt(Formula origin, int baseValue) {
     if (baseValue != 0) {
         origin = Simplify(origin, baseValue);
         cout << "";
-//        solution.push_back(baseValue);
+//        solutionOpt.push_back(baseValue);
     }
 
     int simpleValue = 0;
 
     if (origin.Size() == 0) {
-//        solution.push_back(baseValue);
+//        solutionOpt.push_back(baseValue);
         return true;  //empty formula--Solved
     }
     auto p = origin.Start();
@@ -275,7 +300,7 @@ bool SatSolver::DpllOpt(Formula origin, int baseValue) {
         auto temp = p->data.Start();
 
         if (temp == NULL) {
-//            solution.erase(solution.End());
+//            solutionOpt.erase(solutionOpt.End());
             return false;  //empty clause--No Slution
 
         }
@@ -283,7 +308,7 @@ bool SatSolver::DpllOpt(Formula origin, int baseValue) {
             //single clause--use it to further simplify
             simpleValue = temp->data;
             if (DpllOpt(origin, simpleValue)) {
-                solution.push_back(simpleValue);
+                solutionOpt.push_back(simpleValue);
                 return true;
             } else
                 return false;
@@ -322,14 +347,14 @@ bool SatSolver::DpllOpt(Formula origin, int baseValue) {
     }
 
     if (DpllOpt(origin, simpleValue)) {
-        solution.push_back(simpleValue);
+        solutionOpt.push_back(simpleValue);
         return true;
     }
-//    solution.erase(solution.End());
+//    solutionOpt.erase(solutionOpt.End());
     origin.Clear();
 
     if (DpllOpt(backup, -simpleValue)) {
-        solution.push_back(-simpleValue);
+        solutionOpt.push_back(-simpleValue);
         return true;
     }
     return false;
