@@ -13,6 +13,7 @@
 #include "time.h"
 #include "algorithm"
 #include "Dpll.h"
+#include "CnfParser.h"
 typedef myList<myList<int >> Formula;
 typedef myList<int> Clause;
 typedef Clause *Iterator;
@@ -23,12 +24,13 @@ typedef int Board[9][9];
 
 class SudokuSolver {
 private:
-    int tried[81];
-    SatSolver satSolver = *new SatSolver;
+    SatSolver satSolver;
+    CnfParser cnfParser;
 public:
     Formula formula;
     int answerBoard[9][9];
     int questionBoard[9][9];
+    int playerBoard[9][9];
 
     int ShowBoard(int type) {
         if (type == 1) {
@@ -46,12 +48,12 @@ public:
             }
             cout << endl << "------------------------" << endl;
             fflush(stdout);
-        } else {
+        } else if (type == 0) {
             cout << endl << "------------------------" << endl;
             for (int i1 = 0; i1 < 9; i1++) {
                 for (int i2 = 0; i2 < 9; i2++) {
                     if (questionBoard[i1][i2] == 0)
-                        cout << " ";
+                        cout << "_";
                     else
                         cout << questionBoard[i1][i2];
                     if (i2 % 3 == 2)
@@ -65,6 +67,24 @@ public:
             }
             cout << endl << "------------------------" << endl;
             fflush(stdout);
+        } else if (type == -1) {
+            cout << endl << "------------------------" << endl;
+            for (int i1 = 0; i1 < 9; i1++) {
+                for (int i2 = 0; i2 < 9; i2++) {
+                    if (playerBoard[i1][i2] == 0)
+                        cout << "_";
+                    else
+                        cout << playerBoard[i1][i2];
+                    if (i2 % 3 == 2)
+                        cout << "|";
+                    else
+                        cout << " ";
+                }
+                if (i1 % 3 == 2)
+                    cout << endl << "----------------------";
+                cout << endl;
+            }
+            cout << endl << "------------------------" << endl;
         }
 
 
@@ -73,9 +93,7 @@ public:
 
     SudokuSolver() {
         srand((unsigned) time(NULL));
-        for (int i = 0; i < 81; i++) {
-            tried[i] = 0;
-        }
+
 
         for (int i1 = 0; i1 < 9; i1++) {
             for (int i2 = 0; i2 < 9; i2++) {
@@ -124,6 +142,44 @@ public:
         }
     }
 
+    void Reset() {
+        for (int i1 = 0; i1 < 9; i1++) {
+            for (int i2 = 0; i2 < 9; i2++) {
+                answerBoard[i1][i2] = 0;
+                playerBoard[i1][i2] = 0;
+                questionBoard[i1][i2] = 0;
+            }
+        }
+    }
+
+    bool fill(int row, int cloumn, int num) {
+        if (questionBoard[row][cloumn] == 0) {
+            playerBoard[row][cloumn] = num;
+            return true;
+        } else
+            return false;
+    }
+
+    void Cheat() {
+        for (int i1 = 0; i1 < 9; i1++) {
+            for (int i2 = 0; i2 < 9; i2++) {
+                playerBoard[i1][i2] = answerBoard[i1][i2];
+            }
+        }
+    }
+
+    bool submit() {
+        for (int i1 = 0; i1 < 9; i1++) {
+            for (int i2 = 0; i2 < 9; i2++) {
+                if (playerBoard[i1][i2] != answerBoard[i1][i2]) {
+                    return false;
+                }
+
+            }
+        }
+        return true;
+    }
+
     void PushBasicRule(int target[9]) {
         //push rules matched to 9 limited symbol into formula set
         Clause least = *new Clause;
@@ -154,9 +210,8 @@ public:
         }
         random_shuffle(begin(randomSeq), end(randomSeq));
 
-        for (int i = 0; i < 51; i++) {
+        for (int i = 0; i < 50; i++) {
             digHoleOpt(randomSeq[i] / 9, randomSeq[i] % 9);
-//            cout << endl << i << endl;
         }
 //        cout << "Answer:" << endl;
 //        ShowBoard(1);
@@ -165,6 +220,12 @@ public:
 
 //        cout << isValid(CreateConstraint(0));
 //        ShowVector(satSolver.solutionOpt);
+        for (int i1 = 0; i1 < 9; i1++) {
+            for (int i2 = 0; i2 < 9; i2++) {
+                playerBoard[i1][i2] = questionBoard[i1][i2];
+            }
+        }
+        SaveSudoku();
     }
 
     void CreateAnswer() {
@@ -202,6 +263,7 @@ public:
                     }
                 }
 //                ShowBoard(1);
+//                ShowVector(satSolver.solution);
                 return;
             } else {
                 for (int i = 0; i < 11; i++) {
@@ -273,7 +335,7 @@ public:
             }
         }
         questionBoard[row][column] = 0;
-        ShowBoard(0);
+//        ShowBoard(0);
         return true;
     }
 
@@ -336,6 +398,15 @@ public:
             }
         }
         return true;
+    }
+
+    void SaveSudoku() {
+        Formula temp = CreateConstraint(0);
+        cnfParser.outputSudoku(temp);
+//        ShowBoard(0);
+        Solution tempSolution = satSolver.Solve(temp, 729);
+        satSolver.OutputLog();
+        cnfParser.outputSolution(1, tempSolution, satSolver.time, "Sudoku");
     }
 
 };

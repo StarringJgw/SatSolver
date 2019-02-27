@@ -24,6 +24,8 @@ public:
 
     void outputSolution(bool status, Solution solution, double time);
 
+    void outputSolution(bool status, Solution solution, double time, string givenName);
+
     void outputSudoku(Formula target);
 private:
     string localName;
@@ -122,6 +124,46 @@ void CnfParser::outputSolution(bool status, Solution solution, double time) {
     }
 }
 
+void CnfParser::outputSolution(bool status, Solution solution, double time, string givenName) {
+    //use status to tell true from false
+    if (status == 1) {
+        fstream localFile;
+        localFile.open("../set/" + givenName + ".res", ios::out);
+        localFile << "s 1" << endl;
+        localFile << "v ";
+//        for (int i = 0, size = solution.Size(), absNum = 1;;) {
+//            if (i < size) {
+//                if (abs(solution[i]) > absNum) {
+//                    localFile << absNum << " ";
+//                    absNum++;
+//                    continue;
+//                } else {
+//                    localFile << solution[i] << " ";
+//                    i++;
+//                    absNum++;
+//                    continue;
+//                }
+//            } else {
+//                for (; absNum <= symbolNum; absNum++) {
+//                    localFile << absNum << " ";
+//                }
+//                break;
+//            }
+//        }
+        for (int i = 0, size = solution.Size(); i < size;) {
+            localFile << solution[i] << " ";
+            i++;
+        }
+        localFile << endl;
+        localFile << "t " << time * 1000 << endl;
+    } else {
+        fstream localFile;
+        localFile.open("../set/" + givenName + ".res", ios::out);
+        localFile << "s " << status << endl;
+        localFile << "v" << endl;
+        localFile << "t " << time * 1000 << endl;
+    }
+}
 void CnfParser::outputSudoku(Formula target) {
     fstream localFile;
     localFile.open("../set/Sudoku.cnf", ios::out);

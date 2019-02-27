@@ -39,8 +39,8 @@ public:
     }
 
     void Reset() {
-        Solution solution = *new Solution;
-        Solution solutionOpt = *new Solution;
+        solution = *new Solution;
+        solutionOpt = *new Solution;
         time = 0;
         timeOpt = 0;
         status = false;
@@ -86,7 +86,11 @@ public:
     }
 
     void OutputLog() {
-        cout << status << endl << "TimeOptimize(s): " << timeOpt << endl;
+        if (status == 1)
+            cout << "Dpll Solved" << endl;
+        else
+            cout << "Not Solved" << endl;
+        cout << "TimeOptimize(s): " << timeOpt << endl;
         cout << "TimeOrign(s): " << time << endl;
         cout << "Rate: " << (time - timeOpt) / time << endl;
     }
