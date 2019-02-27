@@ -21,10 +21,12 @@ public:
     }
     void Start() {
         for (;;) {
+            cout << "---------------------" << endl;
             cout << "Welcome" << endl;
             cout << "1.Sudoku Game" << endl;
             cout << "2.Solve SAT" << endl;
             cout << "0.Exit" << endl;
+            cout << "---------------------" << endl;
             int status;
             cin >> status;
             if (status == 0)
