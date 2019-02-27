@@ -111,6 +111,7 @@ public:
     }
 
     void PushBasicRule(int target[9]) {
+        //push rules matched to 9 limited symbol into formula set
         Clause least = *new Clause;
         for (int i = 0; i < 9; i++) {
             least.push_back(target[i]);
@@ -124,11 +125,8 @@ public:
         formula.push_back(least);
     }
 
-    bool IsUnique(int num) {
-        int begin = (num - 1) / 9;
-    }
-
     void GenerateFinal() {
+        //set a new quiz and its answer into two board
         CreateAnswer();
         for (int i1 = 0; i1 < 9; i1++) {
             for (int i2 = 0; i2 < 9; i2++) {
@@ -155,6 +153,7 @@ public:
     }
 
     void CreateAnswer() {
+        //set a new final answer into answerBoard
         Formula answer = satSolver.Clone(formula);
         srand((unsigned) time(NULL));
         for (;;) {
@@ -203,15 +202,35 @@ public:
     }
 
     int toCode(int entry, int num, int status) {
+        //turns the requirment of certain num into Dpll-symbol
         return status * 9 * entry + num;
     }
 
-    void toNum(int code, int &entry, int &num) {
-        entry = code / 9;
-        num = code % 9;
+    Formula CreateConstraint(int status) {
+        //create contraints with selected board,
+        Formula assume = satSolver.Clone(formula);
+        if (status == 1) {
+            for (int i1 = 0; i1 < 9; i1++) {
+                for (int i2 = 0; i2 < 9; i2++) {
+                    if (answerBoard[i1][i2] != 0) {
+                        AssignValue(i1 * 9 + i2, answerBoard[i1][i2], assume);
+                    }
+                }
+            }
+        } else {
+            for (int i1 = 0; i1 < 9; i1++) {
+                for (int i2 = 0; i2 < 9; i2++) {
+                    if (questionBoard[i1][i2] != 0) {
+                        AssignValue(i1 * 9 + i2, questionBoard[i1][i2], assume);
+                    }
+                }
+            }
+        }
+        return assume;
     }
 
     void AssignValue(int entry, int num, Formula assume) {
+        //assign the given entry with given number and add its rules into assume
         Clause newRule = *new Clause;
         newRule.push_back(toCode(entry, num, 1));
         assume.push_back(newRule);
@@ -220,18 +239,20 @@ public:
     }
 
     bool isValid(Formula target) {
+        //use dpll to verify if target can be solved
         satSolver.Reset();
         satSolver.Solve(target, 729);
         return satSolver.status;
     }
 
     bool digHole(int row, int column) {
+        //dig legal hole in [row][column]
         int num = questionBoard[row][column];
         for (int i = 1; i <= 9; i++) {
             if (i == num)
                 continue;
             questionBoard[row][column] = i;
-            if (isValid(CreateConstraint())) {
+            if (isValid(CreateConstraint(0))) {
                 questionBoard[row][column] = num;
                 return false;
             }
@@ -242,6 +263,7 @@ public:
     }
 
     bool digHoleOpt(int row, int column) {
+        //dig legal hole in [row][column] with backTrace
         int num = questionBoard[row][column];
         for (int i = 1; i <= 9; i++) {
             if (i == num)
@@ -258,6 +280,7 @@ public:
     }
 
     bool backTrace(int entry) {
+        //start to solve the questionBoard from given entry
         if (entry == 81)
             return true;
         int row = entry / 9, column = entry % 9;
@@ -276,6 +299,7 @@ public:
     }
 
     bool isValidPlace(int entry) {
+        //judge if it's legal after setting entry
         if (entry == 82)
             return true;
         int row = entry / 9, column = entry % 9;
@@ -299,17 +323,7 @@ public:
         return true;
     }
 
-    Formula CreateConstraint() {
-        Formula assume = satSolver.Clone(formula);
-        for (int i1 = 0; i1 < 9; i1++) {
-            for (int i2 = 0; i2 < 9; i2++) {
-                if (questionBoard[i1][i2] != 0) {
-                    AssignValue(i1 * 9 + i2, questionBoard[i1][i2], assume);
-                }
-            }
-        }
-        return assume;
-    }
+
 };
 
 #endif //TESTC_SUDOKUSOLVER_H
