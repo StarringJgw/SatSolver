@@ -89,7 +89,7 @@ public:
         if (status == 1)
             cout << "Dpll Solved" << endl;
         else
-            cout << "Not Solved" << endl;
+            cout << "No Solution" << endl;
         cout << "TimeOptimize(s): " << timeOpt << endl;
         cout << "TimeOrign(s): " << time << endl;
         cout << "Rate: " << (time - timeOpt) / time << endl;

@@ -12,6 +12,7 @@ class App {
 private:
     SudokuSolver sudokuSolver;
     SatSolver satSolver;
+    CnfParser cnfParser;
 public:
     App() {
         sudokuSolver = *new SudokuSolver;
@@ -62,10 +63,25 @@ public:
                     }
 
                 }
-
-
+            } else if (status == 2) {
+                cout << "Input Name" << endl;
+                string targetName;
+                cin >> targetName;
+                try {
+                    Formula formula = cnfParser.readCnf(targetName);
+                    Solution solution = satSolver.Solve(formula, cnfParser.symbolNum);
+                    cnfParser.outputSolution(satSolver.status, solution, satSolver.time);
+                    satSolver.OutputLog();
+                    continue;
+                }
+                catch (...) {
+                    cout << "Invalid Input!" << endl;
+                    continue;
+                }
+            } else {
+                cout << "Invalid Input!" << endl;
+                continue;
             }
-
         }
     }
 };

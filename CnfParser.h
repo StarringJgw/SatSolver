@@ -41,6 +41,8 @@ Formula CnfParser::readCnf(string target) {
 
     fstream localFile;
     localFile.open("../set/" + localName, ios::in);
+    if (!localFile.is_open())
+        throw false;
     Formula newFormula;
     for (; !localFile.eof();) {
         int newSymbol;
