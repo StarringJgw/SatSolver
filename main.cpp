@@ -10,18 +10,21 @@
 #include "CnfParser.h"
 #include "regex"
 #include "SudokuSolver.h"
+#include "Interface.h"
 //#include "algorithm"
 using namespace std;
 
 
 int main(void) {
-    auto satSolver = *new SatSolver;
-    auto cnfParser = *new CnfParser;
-    auto sudokuSolver = *new SudokuSolver;
-    Formula formula = cnfParser.readCnf("True_S7.cnf");
-//    cout << formula.Size()<< endl;
-    Solution solution = satSolver.Solve(formula, cnfParser.symbolNum);
-    cnfParser.outputSolution(satSolver.status, solution, satSolver.time);
+//    auto satSolver = *new SatSolver;
+//    auto cnfParser = *new CnfParser;
+//    auto sudokuSolver = *new SudokuSolver;
+//    Formula formula = cnfParser.readCnf("Sudoku.cnf");
+////    cout << formula.Size()<< endl;
+//    Solution solution = satSolver.Solve(formula, cnfParser.symbolNum);
+//    cnfParser.outputSolution(satSolver.status, solution, satSolver.time);
+    App app = *new App;
+    app.Start();
 
     return 0;
 }

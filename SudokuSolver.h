@@ -35,8 +35,13 @@ public:
             cout << endl << "------------------------" << endl;
             for (int i1 = 0; i1 < 9; i1++) {
                 for (int i2 = 0; i2 < 9; i2++) {
-                    cout << answerBoard[i1][i2] << " ";
+                    if (answerBoard[i1][i2] == 0)
+                        cout << "  ";
+                    else
+                        cout << answerBoard[i1][i2] << " ";
                 }
+                if (i1 % 3 == 2)
+                    cout << endl << "----------------------";
                 cout << endl;
             }
             cout << endl << "------------------------" << endl;
@@ -45,8 +50,17 @@ public:
             cout << endl << "------------------------" << endl;
             for (int i1 = 0; i1 < 9; i1++) {
                 for (int i2 = 0; i2 < 9; i2++) {
-                    cout << questionBoard[i1][i2] << " ";
+                    if (questionBoard[i1][i2] == 0)
+                        cout << " ";
+                    else
+                        cout << questionBoard[i1][i2];
+                    if (i2 % 3 == 2)
+                        cout << "|";
+                    else
+                        cout << " ";
                 }
+                if (i1 % 3 == 2)
+                    cout << endl << "----------------------";
                 cout << endl;
             }
             cout << endl << "------------------------" << endl;
@@ -140,16 +154,17 @@ public:
         }
         random_shuffle(begin(randomSeq), end(randomSeq));
 
-        for (int i = 0; i < 56; i++) {
-            if (i % 9 == 0)
-                cout << "";
+        for (int i = 0; i < 51; i++) {
             digHoleOpt(randomSeq[i] / 9, randomSeq[i] % 9);
-            cout << endl << i << endl;
+//            cout << endl << i << endl;
         }
-        cout << "Answer:" << endl;
-        ShowBoard(1);
-        cout << "Question: " << endl;
-        ShowBoard(0);
+//        cout << "Answer:" << endl;
+//        ShowBoard(1);
+//        cout << "Question: " << endl;
+//        ShowBoard(0);
+
+//        cout << isValid(CreateConstraint(0));
+//        ShowVector(satSolver.solutionOpt);
     }
 
     void CreateAnswer() {
@@ -174,7 +189,7 @@ public:
             satSolver.Reset();
             satSolver.Solve(answer, 729);
             if (satSolver.status == true) {
-                ShowVector(satSolver.solution);
+//                ShowVector(satSolver.solution);
                 int size = satSolver.solution.Size();
                 for (int i = 0; i < size; i++) {
                     int temp = satSolver.solution[i];
@@ -186,7 +201,7 @@ public:
                         answerBoard[row][column] = num;
                     }
                 }
-                ShowBoard(1);
+//                ShowBoard(1);
                 return;
             } else {
                 for (int i = 0; i < 11; i++) {
@@ -275,7 +290,7 @@ public:
             }
         }
         questionBoard[row][column] = 0;
-        ShowBoard(0);
+//        ShowBoard(0);
         return true;
     }
 
@@ -322,7 +337,6 @@ public:
         }
         return true;
     }
-
 
 };
 

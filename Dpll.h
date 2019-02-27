@@ -84,6 +84,12 @@ public:
         }
         return backup;
     }
+
+    void OutputLog() {
+        cout << status << endl << "TimeOptimize(s): " << timeOpt << endl;
+        cout << "TimeOrign(s): " << time << endl;
+        cout << "Rate: " << (time - timeOpt) / time << endl;
+    }
 };
 Formula SatSolver::Simplify(Formula origin, int target) {
     for (auto p = origin.Start();;) {
@@ -154,6 +160,7 @@ void SatSolver::Show(Formula origin) {
     fflush(stdout);
 }
 
+
 Solution SatSolver::Solve(Formula origin, int symbolNum) {
     auto backup = Clone(origin);
     auto backupOpt = Clone(origin);
@@ -170,9 +177,7 @@ Solution SatSolver::Solve(Formula origin, int symbolNum) {
     timeOpt = time_span.count();
     time_span = chrono::duration_cast<chrono::duration<double >>(t4 - t3);
     time = time_span.count();
-//    cout << status << endl << "TimeOptimize(s): " << timeOpt << endl;
-//    cout << "TimeOrign(s): " << time << endl;
-//    cout << "Rate: " << (time - timeOpt) / time << endl;
+
 
     if (status == 0)
         return {};

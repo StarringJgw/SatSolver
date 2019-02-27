@@ -2,6 +2,7 @@
 #include "fstream"
 #include "SudokuSolver.h"
 #include "Dpll.h"
+#include "CnfParser.h"
 
 using namespace std;
 
@@ -9,8 +10,10 @@ int main(void) {
 //    int x[2][3]={1,2,3,4,5,6};
     SudokuSolver x = *new SudokuSolver;
     SatSolver satSolver = *new SatSolver;
+    CnfParser cnfParser = *new CnfParser;
     int target[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     x.GenerateFinal();
+    cnfParser.outputSudoku(x.CreateConstraint(0));
 //Version Test
 //    x.PushBasicRule(target);
 //    satSolver.Show(x.formula);

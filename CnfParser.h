@@ -24,6 +24,7 @@ public:
 
     void outputSolution(bool status, Solution solution, double time);
 
+    void outputSudoku(Formula target);
 private:
     string localName;
     string realName;
@@ -81,6 +82,7 @@ Formula CnfParser::readCnf(string target) {
 //}
 
 void CnfParser::outputSolution(bool status, Solution solution, double time) {
+    //use status to tell true from false
     if (status == 1) {
         fstream localFile;
         localFile.open("../set/" + realName + ".res", ios::out);
@@ -110,14 +112,28 @@ void CnfParser::outputSolution(bool status, Solution solution, double time) {
             i++;
         }
         localFile << endl;
-        localFile << "t " << time << endl;
+        localFile << "t " << time * 1000 << endl;
     } else {
         fstream localFile;
         localFile.open("../set/" + realName + ".res", ios::out);
         localFile << "s " << status << endl;
         localFile << "v" << endl;
-        localFile << "t " << time << endl;
+        localFile << "t " << time * 1000 << endl;
     }
 }
 
+void CnfParser::outputSudoku(Formula target) {
+    fstream localFile;
+    localFile.open("../set/Sudoku.cnf", ios::out);
+    localFile << "c @Jgw" << endl;
+    localFile << "p cnf 729 " << target.Size() << endl;
+    for (auto p = target.Start(); p != NULL && p != target.End()->next;) {
+        for (auto pList = p->data.Start(); pList != NULL && pList != p->data.End()->next;) {
+            localFile << pList->data << " ";
+            pList = pList->next;
+        }
+        localFile << "0" << endl;
+        p = p->next;
+    }
+}
 #endif //TESTC_CNFPARSER_H
