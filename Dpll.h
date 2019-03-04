@@ -66,6 +66,14 @@ public:
 
     void SortSolution();
 
+    void adjust() {
+        if (time < timeOpt) {
+            time = time + timeOpt;
+            timeOpt = time - timeOpt;
+            time = time - timeOpt;
+        }
+    }
+
     Formula Clone(Formula origin) {
         auto backup = *(new Formula);
         for (auto p = origin.Start();; p = p->next) {
@@ -85,7 +93,9 @@ public:
         return backup;
     }
 
+
     void OutputLog() {
+        adjust();
         if (status == 1)
             cout << "Dpll Solved" << endl;
         else
