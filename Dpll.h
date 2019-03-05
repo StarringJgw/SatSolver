@@ -218,9 +218,9 @@ Solution SatSolver::Solve(Formula origin, int symbolNum) {
     auto backup = Clone(origin);
     auto backupOpt = Clone(origin);
     auto t1 = chrono::steady_clock::now();
-    status = DpllOpt(backupOpt, 0);
+//    status = DpllMin(backupOpt, 0);
     auto t2 = chrono::steady_clock::now();
-    Reset();
+//    Reset();
     auto t3 = chrono::steady_clock::now();
     status = Dpll(backup, 0);
     auto t4 = chrono::steady_clock::now();
@@ -291,7 +291,8 @@ bool SatSolver::Dpll(Formula origin, int baseValue) {
 //            break;
         }
         if (p == origin.End()) {
-            simpleValue = temp->data;
+            simpleValue = origin.Start()->data.Start()->data;
+//            simpleValue = temp->data;
             break;
         }
     }
@@ -463,6 +464,7 @@ bool SatSolver::DpllMin(Formula origin, int baseValue) {
     }
 
     auto backup = *(new Formula);
+    myVector<int> symbols = *new myVector<int>;
     for (auto p = origin.Start();; p = p->next) {
         auto tempClause = *(new Clause);
 
