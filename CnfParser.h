@@ -55,6 +55,7 @@ Formula CnfParser::readCnf(string target) {
             if (tempSymbol == "p") {
                 localFile >> tempSymbol;
                 localFile >> newSymbol;
+                localFile >> tempSymbol;
                 if (localFile.fail())
                     localFile.ignore(numeric_limits<streamsize>::max(), '\n');
                 else

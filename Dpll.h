@@ -60,6 +60,8 @@ public:
 
     bool DpllOpt(Formula origin, int baseValue);
 
+    bool DpllMin(Formula origin, int baseValue);
+
     void Open(Formula x) {
         origin = x;
     }
@@ -72,6 +74,43 @@ public:
             timeOpt = time - timeOpt;
             time = time - timeOpt;
         }
+    }
+
+    template<class T>
+    int ShowVector(myVector<T> target) {
+        for (auto p = target.Start(); p != NULL;) {
+            cout << *p << " ";
+            if (p == target.End())
+                break;
+            p++;
+        }
+        fflush(stdout);
+        return 1;
+    }
+
+    int findMost(myVector<int> x) {
+        int length = x.Size();
+        int tail = length;
+        int temp = 0, max = 0, maxNum = 0;
+        int currentNum = 0;
+        while (tail > 0) {
+            temp = 0;
+            currentNum = x[tail - 1];
+            for (int i = tail; i > 0; i--) {
+                if (currentNum == x[i - 1]) {
+                    temp++;
+                    x[i - 1] = x[tail - 1];
+                    tail--;
+                }
+            }
+            if (temp > max) {
+//                cout <<temp<<"  "<<currentNum<<endl;
+                max = temp;
+                maxNum = currentNum;
+            }
+        }
+//        cout << endl;
+        return maxNum;
     }
 
     Formula Clone(Formula origin) {
@@ -95,7 +134,7 @@ public:
 
 
     void OutputLog() {
-        adjust();
+//        adjust();
         if (status == 1)
             cout << "Dpll Solved" << endl;
         else
@@ -361,6 +400,92 @@ bool SatSolver::DpllOpt(Formula origin, int baseValue) {
     origin.Clear();
 
     if (DpllOpt(backup, -simpleValue)) {
+        solutionOpt.push_back(-simpleValue);
+        return true;
+    }
+    return false;
+    //remain backup!?
+}
+
+bool SatSolver::DpllMin(Formula origin, int baseValue) {
+    if (baseValue != 0) {
+        origin = Simplify(origin, baseValue);
+        cout << "";
+//        solutionOpt.push_back(baseValue);
+    }
+
+    int simpleValue = 0;
+
+    if (origin.Size() == 0) {
+//        solutionOpt.push_back(baseValue);
+        return true;  //empty formula--Solved
+    }
+    auto p = origin.Start();
+    bool checkDouble = 0;
+    int doubleVal = 0;
+    for (;; p = p->next) {
+        auto temp = p->data.Start();
+
+        if (temp == NULL) {
+//            solutionOpt.erase(solutionOpt.End());
+            return false;  //empty clause--No Slution
+
+        }
+        if (temp == p->data.End()) {
+            //single clause--use it to further simplify
+            simpleValue = temp->data;
+            if (DpllMin(origin, simpleValue)) {
+                solutionOpt.push_back(simpleValue);
+                return true;
+            } else
+                return false;
+//            break;
+        }
+        if (p == origin.End()) {
+            myVector<int> symbols = *new myVector<int>;
+
+            for (auto p = origin.Start();; p = p->next) {
+                for (auto pList = p->data.Start(), pListEnd = p->data.End(); pList != NULL; pList = pList->next) {
+                    symbols.push_back(pList->data);
+                    if (pList == pListEnd) {
+                        break;
+                    }
+                }
+                if (p == origin.End()) {
+                    break;
+                }
+            }
+//            ShowVector<int>(symbols);
+            simpleValue = findMost(symbols);
+            symbols.destroy();
+            break;
+        }
+    }
+
+    auto backup = *(new Formula);
+    for (auto p = origin.Start();; p = p->next) {
+        auto tempClause = *(new Clause);
+
+        for (auto pList = p->data.Start(), pListEnd = p->data.End(); pList != NULL; pList = pList->next) {
+            tempClause.push_back(pList->data);
+            if (pList == pListEnd) {
+                break;
+            }
+        }
+        backup.push_back(tempClause);
+        if (p == origin.End()) {
+            break;
+        }
+    }
+
+    if (DpllMin(origin, simpleValue)) {
+        solutionOpt.push_back(simpleValue);
+        return true;
+    }
+//    solutionOpt.erase(solutionOpt.End());
+    origin.Clear();
+
+    if (DpllMin(backup, -simpleValue)) {
         solutionOpt.push_back(-simpleValue);
         return true;
     }

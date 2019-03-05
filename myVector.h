@@ -69,6 +69,14 @@ public:
         return *(start + n);
     }
 
+    void destroy() {
+        for (iterator i = start; i != end; i++) {
+            alloc.destroy(i);
+        }
+        if (start != NULL)
+            alloc.deallocate(start, storageEnd - start);
+    }
+
 };
 
 #endif
